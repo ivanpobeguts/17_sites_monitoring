@@ -1,6 +1,6 @@
 import requests
 import argparse
-from datetime import datetime, date, timedelta
+from datetime import datetime
 import os
 
 
@@ -27,8 +27,9 @@ def get_domain_expiration_date(url):
 
 
 def count_days_before_expiration(expiration_date):
-    delta = expiration_date.date() - date.today()
-    return delta >= timedelta(days=30)
+    expiration_days_limit = 30
+    days_before_expiration = expiration_date - datetime.now()
+    return days_before_expiration.days > expiration_days_limit
 
 
 def get_parser_args():
