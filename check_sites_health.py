@@ -6,7 +6,6 @@ from whois import whois
 from urllib.parse import urlparse
 
 
-
 def load_urls4check(path):
     urls = []
     with open(path, 'r') as urls_file:
@@ -19,6 +18,7 @@ def is_server_respond_with_200(url):
     try:
         response = requests.get(url)
     except (requests.exceptions.ConnectionError,
+            requests.exceptions.MissingSchema,
             requests.exceptions.ProxyError):
         return False
 
@@ -27,7 +27,6 @@ def is_server_respond_with_200(url):
 
 def get_domain(url):
     return urlparse(url).netloc
-
 
 
 def get_domain_expiration_date(domain):
@@ -52,8 +51,7 @@ def is_enough_days_until_expiration(expiration_date):
 def get_parser_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--path',
-        '-p',
+        'path',
         help='path to file with urls for check',
     )
     args = parser.parse_args()
@@ -83,6 +81,5 @@ def print_url_info(url_info):
 if __name__ == '__main__':
     args = get_parser_args()
     urls = load_urls4check(args.path)
-    # print(urls)
     for url in urls:
         print_url_info(get_url_info(url))
