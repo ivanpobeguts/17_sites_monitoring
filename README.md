@@ -16,12 +16,14 @@ $ pip instal -r requirements.txt
 Script waits for one parameter - path to file with urls. Example:
 
 **urls:**
+```
 https://stackoverflow.com/questions/9381463/how-to-create-a-file-in-linux-from-terminal-window
 https://www.aton.ru/
 https://github.com/ivanpobeguts
 http://sdfsdf.sdf/sdf
 https://www.livelib.ru/
 iofdupa
+```
 
 ```bash
 $ python check_sites_health.py urls.txt
