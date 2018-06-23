@@ -2,6 +2,9 @@ import requests
 import argparse
 from datetime import datetime
 import os
+from whois import whois
+from urllib.parse import urlparse
+
 
 
 def load_urls4check(path):
@@ -22,12 +25,26 @@ def is_server_respond_with_200(url):
     return response.ok
 
 
-def get_domain_expiration_date(url):
-    return datetime(2018, 6, 26, 0, 0)
+def get_domain(url):
+    return urlparse(url).netloc
 
 
-def count_days_before_expiration(expiration_date):
+
+def get_domain_expiration_date(domain):
+    whois_response = whois(domain)
+    whois_expiration_date = whois_response.expiration_date
+    if not whois_expiration_date:
+        return None
+    if isinstance(whois_expiration_date, list):
+        return whois_expiration_date[0]
+    elif isinstance(whois_expiration_date, datetime):
+        return whois_expiration_date
+
+
+def is_enough_days_until_expiration(expiration_date):
     expiration_days_limit = 30
+    if expiration_date is None:
+        return False
     days_before_expiration = expiration_date - datetime.now()
     return days_before_expiration.days > expiration_days_limit
 
@@ -47,10 +64,25 @@ def get_parser_args():
     return parser.parse_args()
 
 
+def get_url_info(url):
+    url_info = {}
+    url_info['url'] = url
+    url_info['is_ok'] = is_server_respond_with_200(url)
+    url_info['is_expired'] = is_enough_days_until_expiration(
+        get_domain_expiration_date(get_domain(url)))
+    return url_info
+
+
+def print_url_info(url_info):
+    print('url:', url_info['url'])
+    print('Is url ok: ', 'yes' if url_info['is_ok'] else 'no')
+    print('Is domain expired: ', 'yes' if url_info['is_expired'] else 'no')
+    print('-' * 30)
+
+
 if __name__ == '__main__':
     args = get_parser_args()
     urls = load_urls4check(args.path)
-    print(urls)
+    # print(urls)
     for url in urls:
-        print(is_server_respond_with_200(url))
-        print(count_days_before_expiration(get_domain_expiration_date(url)))
+        print_url_info(get_url_info(url))
